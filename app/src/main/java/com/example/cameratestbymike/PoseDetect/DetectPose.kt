@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cameratestbymike.Camera.CameraViewModel
@@ -17,13 +16,12 @@ import com.example.cameratestbymike.Screens.DataViewModel
 import com.example.cameratestbymike.StoreData.ForReclaimData
 import com.example.cameratestbymike.User.Comparation
 import com.example.cameratestbymike.User.UserStateViewModel
+import com.google.firebase.database.DatabaseReference
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
-import kotlinx.coroutines.launch
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.isActive
 
 
 @Composable
@@ -33,9 +31,12 @@ fun DetectedPose(
     cameraViewModel: CameraViewModel,
     userStateViewModel: UserStateViewModel,
     list:List<ForReclaimData>,
-    exName:String
+    exName:String,
+    anglesViewModel: AnglesViewModel,
+    accurancy:String,
+    databaseReference:DatabaseReference,
+    dataViewModel:DataViewModel
 ) {
-
 
     if (pose != null) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -150,6 +151,151 @@ fun DetectedPose(
             drawLine(rightHeel, rightFootIndex, rightPaint)
 
 
+            if(userStateViewModel.role.value=="host") {
+                anglesViewModel.angle12_14_16.value = getAngle(rightShoulder, rightElbow, rightWrist)
+
+                //MAX gwnias
+                if (anglesViewModel.angle12_14_16.value > cameraViewModel.matrix[0][0]) {
+                    cameraViewModel.matrix[0][0] = anglesViewModel.angle12_14_16.value
+                    Log.d("TOTALMAX", "Max-Agkona-Right:${cameraViewModel.matrix[0][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle12_14_16.value < cameraViewModel.matrix[0][1] && cameraViewModel.matrix[0][0] != Double.MIN_VALUE) {
+                    cameraViewModel.matrix[0][1] = anglesViewModel.angle12_14_16.value
+                    Log.d("TOTALMIN", "Min-Agkona-Right:${cameraViewModel.matrix[0][1]}")
+                }
+
+
+                //gwnia dexia masxalis
+                anglesViewModel.angle24_12_14.value = getAngle(rightHip, rightShoulder, rightElbow)
+
+                //MAX gwnias
+                if (anglesViewModel.angle24_12_14.value > cameraViewModel.matrix[1][0]) {
+                    cameraViewModel.matrix[1][0] = anglesViewModel.angle24_12_14.value
+                    Log.d("TOTALMAX", "Max-Masxali-Right:${cameraViewModel.matrix[1][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle24_12_14.value < cameraViewModel.matrix[1][1] && cameraViewModel.matrix[1][0] != Double.MIN_VALUE) {
+
+                    cameraViewModel.matrix[1][1] = anglesViewModel.angle24_12_14.value
+                    Log.d("TOTALMIN", "Min-Masxali-Right:${cameraViewModel.matrix[1][1]}")
+                }
+
+                //gwnia aristera mesa agkona
+                anglesViewModel.angle11_13_15.value = getAngle(leftShoulder, leftElbow, leftWrist)
+
+                //MAX gwnias
+                if (anglesViewModel.angle11_13_15.value > cameraViewModel.matrix[2][0]) {
+                    cameraViewModel.matrix[2][0] = anglesViewModel.angle11_13_15.value
+                    Log.d("TOTALMΑΧ", "Max-Agkona-Left:${cameraViewModel.matrix[2][0]}")
+                    Log.d("TESTMPIKELEFT", "MPIKE left agkona: ${cameraViewModel.matrix[2][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle11_13_15.value < cameraViewModel.matrix[2][1] && cameraViewModel.matrix[2][0] != Double.MIN_VALUE) {
+                    cameraViewModel.matrix[2][1] = anglesViewModel.angle11_13_15.value
+                    Log.d("TOTALMIN", "Min-Agkona-Left:${cameraViewModel.matrix[2][1]}")
+                }
+
+                //gwnia aristera masxalis
+                anglesViewModel.angle23_11_13.value = getAngle(leftHip, leftShoulder, leftElbow)
+
+                //MAX gwnias
+                if (anglesViewModel.angle23_11_13.value > cameraViewModel.matrix[3][0]) {
+                    cameraViewModel.matrix[3][0] = anglesViewModel.angle23_11_13.value
+                    Log.d("TOTALMΑΧ", "Max-Masxali-Left:${cameraViewModel.matrix[3][0]}")
+                    Log.d("TESTMPIKELEFT", "MPIKE left masxali: ${cameraViewModel.matrix[3][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle23_11_13.value < cameraViewModel.matrix[3][1] && cameraViewModel.matrix[3][0] != Double.MIN_VALUE) {
+
+                    cameraViewModel.matrix[3][1] = anglesViewModel.angle23_11_13.value
+                    Log.d("TOTALMIN", "Min-Masxali-Left:${cameraViewModel.matrix[3][1]}")
+                }
+
+                //gwnia gonato aristero
+                anglesViewModel.angle23_25_27.value = getAngle(leftHip, leftKnee, leftAnkle)
+
+                //MAX gwnias
+                if (anglesViewModel.angle23_25_27.value > cameraViewModel.matrix[4][0]) {
+                    cameraViewModel.matrix[4][0] = anglesViewModel.angle23_25_27.value
+                    Log.d("TOTALMΑΧ", "Max-Gonato-Left:${cameraViewModel.matrix[4][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle23_25_27.value < cameraViewModel.matrix[4][1] && cameraViewModel.matrix[4][0] != Double.MIN_VALUE) {
+
+                    cameraViewModel.matrix[4][1] = anglesViewModel.angle23_25_27.value
+                    Log.d("TOTALMIN", "Min-Gonato-Left:${cameraViewModel.matrix[4][1]}")
+                }
+
+                //gwnia gonato dexi
+                anglesViewModel.angle24_26_28.value = getAngle(rightHip, rightKnee, rightAnkle)
+
+                //MAX gwnias
+                if (anglesViewModel.angle24_26_28.value > cameraViewModel.matrix[5][0]) {
+                    cameraViewModel.matrix[5][0] = anglesViewModel.angle24_26_28.value
+                    Log.d("TOTALMΑΧ", "Max-Gonato-Right:${cameraViewModel.matrix[5][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle24_26_28.value < cameraViewModel.matrix[5][1] && cameraViewModel.matrix[5][0] != Double.MIN_VALUE) {
+
+                    cameraViewModel.matrix[5][1] = anglesViewModel.angle24_26_28.value
+                    Log.d("TOTALMIN", "Min-Gonato-Right:${cameraViewModel.matrix[5][1]}")
+                }
+
+                //gwnia dexi lekani
+                anglesViewModel.angle12_24_26.value = getAngle(rightShoulder, rightHip, rightKnee)
+
+                //MAX gwnias
+                if (anglesViewModel.angle12_24_26.value > cameraViewModel.matrix[6][0]) {
+                    cameraViewModel.matrix[6][0] = anglesViewModel.angle12_24_26.value
+                    Log.d("TOTALMΑΧ", "Max-Lekani-Right:${cameraViewModel.matrix[6][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle12_24_26.value < cameraViewModel.matrix[6][1] && cameraViewModel.matrix[6][0] != Double.MIN_VALUE) {
+
+                    cameraViewModel.matrix[6][1] = anglesViewModel.angle12_24_26.value
+                    Log.d("TOTALMIN", "Min-Lekani-Right:${cameraViewModel.matrix[6][1]}")
+                }
+
+                //gwnia aristeri lekani
+                anglesViewModel.angle11_23_25.value = getAngle(leftShoulder, leftHip, leftKnee)
+
+                //MAX gwnias
+                if (anglesViewModel.angle11_23_25.value > cameraViewModel.matrix[7][0]) {
+                    cameraViewModel.matrix[7][0] = anglesViewModel.angle11_23_25.value
+                    Log.d("TOTALMΑΧ", "Max-Lekani-Left:${cameraViewModel.matrix[7][0]}")
+                }
+
+                //MIN gwnias
+                if (anglesViewModel.angle11_23_25.value < cameraViewModel.matrix[7][1] && cameraViewModel.matrix[7][0] != Double.MIN_VALUE) {
+
+                    cameraViewModel.matrix[7][1] = anglesViewModel.angle11_23_25.value
+                    Log.d("TOTALMIN", "Min-Lekani-Left:${cameraViewModel.matrix[7][1]}")
+                }
+            }
+            else{
+                //anglesViewModel.angle12_14_16.value = 60.00
+
+                anglesViewModel.angle12_14_16.value = getAngle(rightShoulder, rightElbow, rightWrist)
+                anglesViewModel.angle24_12_14.value = getAngle(rightHip, rightShoulder, rightElbow)
+                anglesViewModel.angle11_13_15.value = getAngle(leftShoulder, leftElbow, leftWrist)
+                anglesViewModel.angle23_11_13.value = getAngle(leftHip, leftShoulder, leftElbow)
+                anglesViewModel.angle23_25_27.value = getAngle(leftHip, leftKnee, leftAnkle)
+                anglesViewModel.angle24_26_28.value = getAngle(rightHip, rightKnee, rightAnkle)
+                anglesViewModel.angle12_24_26.value = getAngle(rightShoulder, rightHip, rightKnee)
+                anglesViewModel.angle11_23_25.value = getAngle(leftShoulder, leftHip, leftKnee)
+
+            }
+
+            /**
+             * litoyrgei auto apla paw na allaksw tis gwnies se viewmodel wste na dw an mporw na to epeksergasto alliws me call.
 
             if(userStateViewModel.role.value=="host") {
                 val angle12_14_16 = getAngle(rightShoulder, rightElbow, rightWrist)
@@ -282,6 +428,9 @@ fun DetectedPose(
             }
             else{
 
+                //apo edw
+
+                //mexri edw add
 
 
                 //gwnia dexia agkona
@@ -364,24 +513,20 @@ fun DetectedPose(
                     //Log.d("Comparation", "aristeri lekani:out of Bounds")
 
                 }
-
-
-
-               /* //Comparation(angle12_14_16,list)
-                if(Comparation(angle12_14_16,list))
-                    Log.d("inBounds","inBounds")
-
-                else
-                    Log.d("inBounds","out of Bounds")*/
-            }
+            }*/
 
 
 
         }
-
+        LaunchedEffect(Unit) {
+            while (isActive) { // Check if the coroutine is still active
+                //Comparation(anglesViewModel,list,exName)
+                Comparation(anglesViewModel,list,exName,accurancy.toDouble(),databaseReference,dataViewModel)
+                delay(200) // Wait for 3 seconds
+            }
+        }
     }
 
 }
-
 
 

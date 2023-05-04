@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     val databaseReference =  FirebaseDatabase.getInstance().getReference("Matrix")
                     val dataViewModel = viewModel<DataViewModel>()
                     val userStateViewModel = viewModel<UserStateViewModel>()
-                    userStateViewModel.setRoleHost()
+                    userStateViewModel.setRoleUser()
 
 
                     Navigation(databaseReference,userStateViewModel,dataViewModel)

@@ -27,10 +27,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.cameratestbymike.PoseDetect.AnglesViewModel
 import com.example.cameratestbymike.PoseDetect.DetectedPose
 import com.example.cameratestbymike.PoseDetect.PoseDetectorProcessor
 import com.example.cameratestbymike.R
@@ -43,6 +45,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.pose.Pose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -92,7 +95,7 @@ private fun CameraPreviewView(
     cameraUIAction: (CameraUIAction) -> Unit,
     ) {
     val userStateViewModel=viewModel<UserStateViewModel>()
-    userStateViewModel.setRoleHost()
+    userStateViewModel.setRoleUser()
     //Log.d("Roleof","${userStateViewModel.role.value}")
 
     val context = LocalContext.current
@@ -194,8 +197,38 @@ private fun CameraPreviewView(
                     )
                 }
             }
+            //end add viewmodel
 
-                //end add viewmodel
+            //kanw add ta texts gia user
+            if(userStateViewModel.role.value=="user") {
+                val anglesViewModel=viewModel<AnglesViewModel>()
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .padding(vertical = 16.dp)
+                ) {
+                    Column(modifier = Modifier.align(Alignment.TopStart)) {
+                        //text gia kathodigisi
+                        Text(
+                            text = anglesViewModel.textViewed.value,
+                            color = Color.White,
+                            fontSize = 22.sp
+                            //modifier = Modifier.align(Alignment.Center),
+                        )
+                        Text(
+                            text= "Reps:${anglesViewModel.count.value}",
+                            color = Color.White,
+                            fontSize = 22.sp
+                           // modifier = Modifier.align(Alignment.Center),
+                        )
+                    }
+
+                }
+
+            }
+            //end add texts gia user
 
 
             BoxWithConstraints(
@@ -224,6 +257,8 @@ private fun CameraPreviewView(
                         dataViewModel.getdatafromdatabase(databaseReference)
                         val listTotal=dataViewModel.getList()
 
+                        val anglesViewModel= viewModel<AnglesViewModel>()
+
                         if(userStateViewModel.role.value=="host") {
                             if ((cameraViewModel.timeBeforePoseDetect.value == 0) && (cameraViewModel.timeAfterPoseDetect.value > 0)) {
 
@@ -242,9 +277,11 @@ private fun CameraPreviewView(
                                     userStateViewModel,
                                     listTotal,
                                     newItemName,
-
+                                    anglesViewModel,
+                                    Accurancy,
+                                    databaseReference,
+                                    dataViewModel
                                 )
-
 
                             }
                         }
@@ -257,7 +294,10 @@ private fun CameraPreviewView(
                                 userStateViewModel,
                                 listTotal,
                                 newItemName,
-
+                                anglesViewModel,
+                                Accurancy,
+                                databaseReference,
+                                dataViewModel
                             )
                         }
 
@@ -303,7 +343,6 @@ fun SaveToDataBase(
         ForStoreData(matrix[5][0],matrix[5][1],Accurancy.toDouble()),
         ForStoreData(matrix[6][0],matrix[6][1],Accurancy.toDouble()),
         ForStoreData(matrix[7][0],matrix[7][1],Accurancy.toDouble())
-
     )
 
 
