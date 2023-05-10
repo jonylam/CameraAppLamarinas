@@ -15,6 +15,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import android.Manifest
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.cameratestbymike.auth.AuthViewModel
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.database.DatabaseReference
 
@@ -22,9 +23,10 @@ import com.google.firebase.database.DatabaseReference
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun camera(
+    viewModel: AuthViewModel,
     databaseReference: DatabaseReference,
     newItemName: String,
-    Accurancy:String,
+    Accurancy: String,
     navController: NavHostController
 ){
 
@@ -53,8 +55,8 @@ fun camera(
     ) {
         when {
             permissionState.hasPermission -> {
-                val viewModel = viewModel<CameraViewModel>()
-                CameraView(viewModel,databaseReference,newItemName,Accurancy,navController)
+                val cameraViewModel = viewModel<CameraViewModel>()
+                CameraView(viewModel,cameraViewModel,databaseReference,newItemName,Accurancy,navController)
             }
             permissionState.shouldShowRationale -> {
                 Text(text = "Camera permission is needed" +

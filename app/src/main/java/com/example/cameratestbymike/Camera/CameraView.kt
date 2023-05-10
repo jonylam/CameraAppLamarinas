@@ -40,12 +40,12 @@ import com.example.cameratestbymike.Screens.DataViewModel
 
 import com.example.cameratestbymike.StoreData.ForStoreData
 import com.example.cameratestbymike.User.UserStateViewModel
+import com.example.cameratestbymike.auth.AuthViewModel
 import com.google.android.gms.tasks.TaskExecutors
 import com.google.firebase.database.DatabaseReference
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.pose.Pose
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -53,6 +53,7 @@ import kotlin.coroutines.suspendCoroutine
 
 @Composable
 fun CameraView(
+    viewModel: AuthViewModel,
     cameraViewModel: CameraViewModel,
     databaseReference: DatabaseReference,
     newItemName: String,
@@ -63,6 +64,7 @@ fun CameraView(
     var lensFacing by remember { mutableStateOf(CameraSelector.LENS_FACING_BACK)}
 
     CameraPreviewView(
+        viewModel,
         databaseReference,
         newItemName,
         Accurancy,
@@ -85,7 +87,7 @@ fun CameraView(
 
 @Composable
 private fun CameraPreviewView(
-
+    viewModel: AuthViewModel,
     databaseReference: DatabaseReference,
     newItemName: String,
     Accurancy: String,
@@ -95,7 +97,7 @@ private fun CameraPreviewView(
     cameraUIAction: (CameraUIAction) -> Unit,
     ) {
     val userStateViewModel=viewModel<UserStateViewModel>()
-    userStateViewModel.setRoleUser()
+    userStateViewModel.setRoleHost()
     //Log.d("Roleof","${userStateViewModel.role.value}")
 
     val context = LocalContext.current
@@ -123,7 +125,7 @@ private fun CameraPreviewView(
 
     //Changes about time viewmodel
 
-    if(userStateViewModel.role.value=="host") {
+    if(viewModel.currentUser?.displayName.toString()=="host") {
         LaunchedEffect(
             cameraViewModel.timeBeforePoseDetect,
             cameraViewModel.timeAfterPoseDetect,
@@ -152,6 +154,26 @@ private fun CameraPreviewView(
             cameraViewModel.resetRestart()
         }
     }
+    /**edw einai an 8elw na balw to timer gia ton user ton 10 sec prin tin katagrafi
+     * else if(userStateViewModel.role.value=="user"){
+        LaunchedEffect(
+            cameraViewModel.timeBeforePoseDetect,
+            cameraViewModel.restartTrigger.value
+        ) {
+
+
+            while (cameraViewModel.timeBeforePoseDetect.value > 0) {
+
+                delay(1000)
+
+                cameraViewModel.setTbefore(cameraViewModel.timeBeforePoseDetect.value - 1)
+
+                Log.d("TimeTest", "time before: ${cameraViewModel.timeBeforePoseDetect.value}")
+            }
+
+            cameraViewModel.resetRestart()
+        }
+    }*/
 
 
     //end changes about time viewmodel
@@ -177,8 +199,8 @@ private fun CameraPreviewView(
             AndroidView({ previewView }, modifier = Modifier.fillMaxSize()) {
             }
 
-           //kanw add to timer viewmodel
-            if(userStateViewModel.role.value=="host") {
+           //kanw add to timer viewmodel gia ton host
+            if(viewModel.currentUser?.displayName.toString()=="host") {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -200,7 +222,7 @@ private fun CameraPreviewView(
             //end add viewmodel
 
             //kanw add ta texts gia user
-            if(userStateViewModel.role.value=="user") {
+            if(viewModel.currentUser?.displayName.toString()=="user") {
                 val anglesViewModel=viewModel<AnglesViewModel>()
 
                 Box(
@@ -218,7 +240,7 @@ private fun CameraPreviewView(
                             //modifier = Modifier.align(Alignment.Center),
                         )
                         Text(
-                            text= "Reps:${anglesViewModel.count.value}",
+                            text= anglesViewModel.textCount.value,
                             color = Color.White,
                             fontSize = 22.sp
                            // modifier = Modifier.align(Alignment.Center),
@@ -259,15 +281,12 @@ private fun CameraPreviewView(
 
                         val anglesViewModel= viewModel<AnglesViewModel>()
 
-                        if(userStateViewModel.role.value=="host") {
+                        if(viewModel.currentUser?.displayName.toString()=="host") {
                             if ((cameraViewModel.timeBeforePoseDetect.value == 0) && (cameraViewModel.timeAfterPoseDetect.value > 0)) {
 
                                 if (cameraViewModel.matrixTrigger.value == false) {
                                     cameraViewModel.DeclareMinMaxTable()
-                                    //cameraViewModel.showMatrix()
                                     cameraViewModel.matrixTrigger.value = true
-                                    //Log.d("TestMpike1","mpike")
-                                    //cameraViewModel.matrixTrigger.value=true
                                 }
 
                                 DetectedPose(
@@ -286,19 +305,21 @@ private fun CameraPreviewView(
                             }
                         }
                         else{
-
-                            DetectedPose(
-                                pose = detectedPose,
-                                sourceInfo = sourceInfo,
-                                cameraViewModel,
-                                userStateViewModel,
-                                listTotal,
-                                newItemName,
-                                anglesViewModel,
-                                Accurancy,
-                                databaseReference,
-                                dataViewModel
-                            )
+                          //sta sxolia einai an 8elw na balw to time ton 10 sec prin arxisei h katagrafi pozwn gia ton user
+                          //  if ( (cameraViewModel.timeBeforePoseDetect.value == 0) ) {
+                                DetectedPose(
+                                    pose = detectedPose,
+                                    sourceInfo = sourceInfo,
+                                    cameraViewModel,
+                                    userStateViewModel,
+                                    listTotal,
+                                    newItemName,
+                                    anglesViewModel,
+                                    Accurancy,
+                                    databaseReference,
+                                    dataViewModel
+                                )
+                           // }
                         }
 
 

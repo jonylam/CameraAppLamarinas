@@ -1,7 +1,11 @@
 package com.example.cameratestbymike.Screens
+
+
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.R
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
@@ -11,9 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.cameratestbymike.User.UserStateViewModel
+import com.example.cameratestbymike.auth.AuthViewModel
 import com.google.firebase.database.DatabaseReference
 
 
@@ -24,11 +30,13 @@ import com.google.firebase.database.DatabaseReference
 
 @Composable
 fun PreviewCards(
+    viewModel: AuthViewModel,
     dataViewModel: DataViewModel,
     userStateViewModel: UserStateViewModel,
     databaseReference: DatabaseReference,
     navController: NavController
 ) {
+
     val listData = dataViewModel.getList()
 
     dataViewModel.getdatafromdatabase(databaseReference)
@@ -59,7 +67,7 @@ fun PreviewCards(
                                 modifier = Modifier.padding(16.dp)
                             )
                             //na emfanistei an exw rolo host
-                            if(userStateViewModel.role.value=="host") {
+                            if(viewModel.currentUser?.displayName.toString()=="host") {
                                 Button(
                                     onClick = {
                                         //auto einai gia to an kanei press to button start kai exei role host
@@ -84,14 +92,12 @@ fun PreviewCards(
 
             }
             //me if an einai host
-            if(userStateViewModel.role.value=="host") {
+            if(viewModel.currentUser?.displayName.toString()=="host") {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = Color.Gray)
                         .padding(16.dp)
-                    //.height(64.dp)
-
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -113,12 +119,39 @@ fun PreviewCards(
                         ) {
                             Text(text = "Delete")
                         }
+
+                        Button(
+                            onClick = {
+                                viewModel?.logout()
+                                navController.navigate("login") {
+                                    popUpTo("main_screen") { inclusive = true }
+                                }
+                            }
+                        ) {
+                            Text(text = "logout")
+                        }
                     }
                 }
             }
-            //mexri edw gia host gia buttons delete add.
+            //mexri edw gia host gia buttons delete add logout.
+
+            if(viewModel.currentUser?.displayName.toString()=="user") {
+                Button(
+                    onClick = {
+                        viewModel?.logout()
+                        navController.navigate("login") {
+                            popUpTo("main_screen") { inclusive = true }
+                        }
+                    }
+                ) {
+                    Text(text = "logout")
+                }
+            }
+
 
         }
+
+
 
     }
 }

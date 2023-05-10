@@ -6,4 +6,6 @@ sealed class Screen(val route:String){
     object AddElement:Screen("add_screen")
     object DeleteElement:Screen("delete_screen")
     object CameraUser:Screen("camera_asUser")
+    object Login:Screen("login")
+    object SignUp:Screen("signup")
 }

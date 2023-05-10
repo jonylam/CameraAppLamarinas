@@ -8,14 +8,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cameratestbymike.Camera.camera
 import com.example.cameratestbymike.User.UserStateViewModel
+import com.example.cameratestbymike.auth.AuthViewModel
+import com.example.cameratestbymike.auth.LoginScreen
+import com.example.cameratestbymike.auth.SignupScreen
 import com.google.firebase.database.DatabaseReference
 
 @Composable
-fun Navigation(databaseReference: DatabaseReference,userStateViewModel:UserStateViewModel, dataViewModel: DataViewModel) {
+fun Navigation(viewModel: AuthViewModel, databaseReference: DatabaseReference, userStateViewModel:UserStateViewModel, dataViewModel: DataViewModel) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.MainScreen.route){
+    NavHost(navController = navController, startDestination = Screen.Login.route){
         composable(route = Screen.MainScreen.route){
-            PreviewCards(dataViewModel,userStateViewModel,databaseReference,navController)
+            PreviewCards(viewModel,dataViewModel,userStateViewModel,databaseReference,navController)
         }
         composable(
             route = Screen.CameraScreen.route + "/{exName}/{accurancy}",
@@ -28,7 +31,9 @@ fun Navigation(databaseReference: DatabaseReference,userStateViewModel:UserState
                 }
             )
         ){entry->
-            camera(databaseReference = databaseReference,
+            camera(
+                viewModel,
+                databaseReference = databaseReference,
                 newItemName = entry.arguments?.getString("exName")!!,
                 Accurancy = entry.arguments?.getString("accurancy")!!,
                 navController)
@@ -38,6 +43,12 @@ fun Navigation(databaseReference: DatabaseReference,userStateViewModel:UserState
         }
         composable(route = Screen.DeleteElement.route){
             deleteElement(navController)
+        }
+        composable(route = Screen.Login.route){
+            LoginScreen(viewModel, navController)
+        }
+        composable(route = Screen.SignUp.route){
+            SignupScreen(viewModel, navController)
         }
     }
 }
