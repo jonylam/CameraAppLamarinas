@@ -1,14 +1,14 @@
 package com.example.cameratestbymike.auth
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavHostController
@@ -52,7 +53,18 @@ fun SignupScreen(viewModel: AuthViewModel?, navController: NavHostController) {
                 }
                 .wrapContentSize()
         ) {
-            //AuthHeader()
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = spacing.medium),
+                text = "Register",
+                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 40.sp
+            )
+
         }
 
         TextField(
@@ -126,7 +138,10 @@ fun SignupScreen(viewModel: AuthViewModel?, navController: NavHostController) {
 
         Button(
             onClick = {
-                viewModel?.signupUser(role, email, password)
+                if(role=="user" || role=="host")
+                    viewModel?.signupUser(role, email, password)
+                else
+                    Toast.makeText(content,"Type Your Role Correct",Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.constrainAs(refButtonSignup) {
                 top.linkTo(refPassword.bottom, spacing.large)

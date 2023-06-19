@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cameratestbymike.Screens.Navigation
 import com.example.cameratestbymike.Screens.DataViewModel
-import com.example.cameratestbymike.User.UserStateViewModel
 import com.example.cameratestbymike.auth.AuthViewModel
 import com.example.cameratestbymike.ui.theme.CameraTestByMikeTheme
 import com.google.firebase.database.FirebaseDatabase
@@ -33,11 +32,8 @@ class MainActivity : ComponentActivity() {
                     val authViewModel by viewModels<AuthViewModel>()
                     val databaseReference =  FirebaseDatabase.getInstance().getReference("Matrix")
                     val dataViewModel = viewModel<DataViewModel>()
-                    val userStateViewModel = viewModel<UserStateViewModel>()
-                    userStateViewModel.setRoleHost()
 
-
-                    Navigation(authViewModel,databaseReference,userStateViewModel,dataViewModel)
+                    Navigation(authViewModel,databaseReference,dataViewModel)
 
 
                 }

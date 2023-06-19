@@ -9,9 +9,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.database.DatabaseReference
 
 @Composable
-fun deleteElement(navController: NavHostController) {
+fun deleteElement(navController: NavHostController, databaseReference: DatabaseReference, dataViewModel: DataViewModel) {
     var name by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
@@ -35,10 +36,8 @@ fun deleteElement(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            //navController.navigate("camera_screen/$name")
-            /**
-             * edw prepei na kanw kapws na kanei delete otan dinw to name
-             */
+            dataViewModel.deleteExercise(databaseReference,name)
+            navController.navigate("main_screen")
         }) {
             Text("Delete")
         }

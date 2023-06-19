@@ -39,7 +39,6 @@ import com.example.cameratestbymike.R
 import com.example.cameratestbymike.Screens.DataViewModel
 
 import com.example.cameratestbymike.StoreData.ForStoreData
-import com.example.cameratestbymike.User.UserStateViewModel
 import com.example.cameratestbymike.auth.AuthViewModel
 import com.google.android.gms.tasks.TaskExecutors
 import com.google.firebase.database.DatabaseReference
@@ -96,8 +95,8 @@ private fun CameraPreviewView(
     cameraViewModel: CameraViewModel,
     cameraUIAction: (CameraUIAction) -> Unit,
     ) {
-    val userStateViewModel=viewModel<UserStateViewModel>()
-    userStateViewModel.setRoleHost()
+    //val userStateViewModel by viewModels<UserStateViewModel>()
+    //userStateViewModel.setRoleHost()
     //Log.d("Roleof","${userStateViewModel.role.value}")
 
     val context = LocalContext.current
@@ -125,7 +124,7 @@ private fun CameraPreviewView(
 
     //Changes about time viewmodel
 
-    if(viewModel.currentUser?.displayName.toString()=="host") {
+   // if(viewModel.currentUser?.displayName.toString()=="host") {
         LaunchedEffect(
             cameraViewModel.timeBeforePoseDetect,
             cameraViewModel.timeAfterPoseDetect,
@@ -153,28 +152,7 @@ private fun CameraPreviewView(
 
             cameraViewModel.resetRestart()
         }
-    }
-    /**edw einai an 8elw na balw to timer gia ton user ton 10 sec prin tin katagrafi
-     * else if(userStateViewModel.role.value=="user"){
-        LaunchedEffect(
-            cameraViewModel.timeBeforePoseDetect,
-            cameraViewModel.restartTrigger.value
-        ) {
-
-
-            while (cameraViewModel.timeBeforePoseDetect.value > 0) {
-
-                delay(1000)
-
-                cameraViewModel.setTbefore(cameraViewModel.timeBeforePoseDetect.value - 1)
-
-                Log.d("TimeTest", "time before: ${cameraViewModel.timeBeforePoseDetect.value}")
-            }
-
-            cameraViewModel.resetRestart()
-        }
-    }*/
-
+    //}
 
     //end changes about time viewmodel
 
@@ -219,38 +197,53 @@ private fun CameraPreviewView(
                     )
                 }
             }
-            //end add viewmodel
-
-            //kanw add ta texts gia user
-            if(viewModel.currentUser?.displayName.toString()=="user") {
-                val anglesViewModel=viewModel<AnglesViewModel>()
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.5f))
-                        .padding(vertical = 16.dp)
-                ) {
-                    Column(modifier = Modifier.align(Alignment.TopStart)) {
-                        //text gia kathodigisi
+            /**ta bazw twra gia time ston usercamera*/
+            else if (viewModel.currentUser?.displayName.toString()=="user"){
+                if(cameraViewModel.timeBeforePoseDetect.value != 0) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .padding(vertical = 16.dp)
+                    ) {
                         Text(
-                            text = anglesViewModel.textViewed.value,
+                            text = "Time Remaining For Pose Detect Start:  ${cameraViewModel.timeBeforePoseDetect.value}",
                             color = Color.White,
-                            fontSize = 22.sp
-                            //modifier = Modifier.align(Alignment.Center),
-                        )
-                        Text(
-                            text= anglesViewModel.textCount.value,
-                            color = Color.White,
-                            fontSize = 22.sp
-                           // modifier = Modifier.align(Alignment.Center),
+                            modifier = Modifier.align(Alignment.Center),
                         )
                     }
-
                 }
+                else{
+                    val anglesViewModel=viewModel<AnglesViewModel>()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .padding(vertical = 16.dp)
+                    ) {
+                        Column(modifier = Modifier.align(Alignment.TopStart)) {
+                            //text gia kathodigisi
+                            Text(
+                                text = anglesViewModel.textViewed.value,
+                                color = Color.White,
+                                fontSize = 22.sp
+                                //modifier = Modifier.align(Alignment.Center),
+                            )
+                            Text(
+                                text= anglesViewModel.textCount.value,
+                                color = Color.White,
+                                fontSize = 22.sp
+                                // modifier = Modifier.align(Alignment.Center),
+                            )
+                        }
 
+                    }
+                }
             }
-            //end add texts gia user
+            /**ta bazw twra gia time ston usercamera*/
+            //end add viewmodel
+
 
 
             BoxWithConstraints(
@@ -276,9 +269,8 @@ private fun CameraPreviewView(
 
 
                         val dataViewModel=viewModel<DataViewModel>()
-                        dataViewModel.getdatafromdatabase(databaseReference)
+                        dataViewModel.getDataFromDatabase(databaseReference)
                         val listTotal=dataViewModel.getList()
-
                         val anglesViewModel= viewModel<AnglesViewModel>()
 
                         if(viewModel.currentUser?.displayName.toString()=="host") {
@@ -293,7 +285,7 @@ private fun CameraPreviewView(
                                     pose = detectedPose,
                                     sourceInfo = sourceInfo,
                                     cameraViewModel,
-                                    userStateViewModel,
+                                    viewModel.currentUser?.displayName.toString(),
                                     listTotal,
                                     newItemName,
                                     anglesViewModel,
@@ -304,14 +296,14 @@ private fun CameraPreviewView(
 
                             }
                         }
-                        else{
+                        else if (viewModel.currentUser?.displayName.toString()=="user"){
                           //sta sxolia einai an 8elw na balw to time ton 10 sec prin arxisei h katagrafi pozwn gia ton user
-                          //  if ( (cameraViewModel.timeBeforePoseDetect.value == 0) ) {
+                            if ( (cameraViewModel.timeBeforePoseDetect.value == 0) ) {
                                 DetectedPose(
                                     pose = detectedPose,
                                     sourceInfo = sourceInfo,
                                     cameraViewModel,
-                                    userStateViewModel,
+                                    viewModel.currentUser?.displayName.toString(),
                                     listTotal,
                                     newItemName,
                                     anglesViewModel,
@@ -319,7 +311,7 @@ private fun CameraPreviewView(
                                     databaseReference,
                                     dataViewModel
                                 )
-                           // }
+                            }
                         }
 
 
@@ -333,13 +325,16 @@ private fun CameraPreviewView(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 verticalArrangement = Arrangement.Bottom
             ) {
+                val anglesViewModel= viewModel<AnglesViewModel>()
                 CameraControls(
                     cameraUIAction,
                     cameraViewModel,
                     databaseReference,
                     newItemName,
                     Accurancy,
-                    navController
+                    navController,
+                    viewModel.currentUser?.displayName.toString(),
+                    anglesViewModel
                 )
             }
         }
@@ -396,7 +391,9 @@ fun CameraControls(
     databaseReference: DatabaseReference,
     newItemName: String,
     Accurancy: String,
-    navController: NavHostController
+    navController: NavHostController,
+    role:String,
+    anglesViewModel: AnglesViewModel
 ) {
 
     val context= LocalContext.current
@@ -405,7 +402,7 @@ fun CameraControls(
         modifier = Modifier
             .fillMaxWidth()
             //.background(MaterialTheme.colors.surface),
-            .background(color = Color.Gray)
+            .background(color = Color(0xFFB4ABCA))
             .padding(5.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -426,9 +423,20 @@ fun CameraControls(
         ) {
             IconButton(
                 onClick = {
-                    cameraViewModel.setTafterTbefore(10,10)
-                    cameraViewModel.Restart()
-                    cameraViewModel.matrixTrigger.value=false
+                    if(role=="host") {
+                        cameraViewModel.setTafterTbefore(10, 10)
+                        cameraViewModel.Restart()
+                        cameraViewModel.matrixTrigger.value = false
+                    }
+                    else if(role=="user"){
+                        cameraViewModel.setTafterTbefore(10, 10)
+                        cameraViewModel.Restart()
+                        cameraViewModel.matrixTrigger.value = false
+                        Log.d("count","${anglesViewModel.count.value}")
+                        anglesViewModel.count.value=0
+                        anglesViewModel.textCount.value = "Reps:${anglesViewModel.count.value}"
+                        Log.d("count","${anglesViewModel.count.value}")
+                    }
                 },
                 //modifier = Modifier.size(50.dp)
             ) {
@@ -447,6 +455,7 @@ fun CameraControls(
 
         Spacer(modifier = Modifier.width(20.dp))
 
+        if(role=="host") {
             if (cameraViewModel.timeAfterPoseDetect.value == 0)
             //kanw add px button gia meta to capture video an 8elw na apo8ikeutei h mporw na balw kai allo ena gia retake
             {
@@ -477,6 +486,7 @@ fun CameraControls(
                     )
                 }
             }
+        }
 
 
     }

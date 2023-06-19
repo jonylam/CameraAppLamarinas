@@ -17,10 +17,11 @@ class AnglesViewModel: ViewModel() {
     var angle24_26_28 = mutableStateOf(0.0)
     var angle12_24_26 = mutableStateOf(0.0)
     var angle11_23_25 = mutableStateOf(0.0)
+    var armPositionLine = mutableStateOf(false)
+    var legsPosition_squad = mutableStateOf(false)
 
-    /**
-     * gia elegxo dumple prepei na dw isws gonia 23 11 15, gia na dw an to xeri einai px eu8ia mprosta idia me to kefali h exei klisi pros dexia h aristera.
-     */
+
+
 
     var count = mutableStateOf(0)
     var rep = mutableStateOf(false)

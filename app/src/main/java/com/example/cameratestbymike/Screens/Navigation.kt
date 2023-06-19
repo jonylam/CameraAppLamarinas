@@ -7,18 +7,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cameratestbymike.Camera.camera
-import com.example.cameratestbymike.User.UserStateViewModel
 import com.example.cameratestbymike.auth.AuthViewModel
 import com.example.cameratestbymike.auth.LoginScreen
 import com.example.cameratestbymike.auth.SignupScreen
 import com.google.firebase.database.DatabaseReference
 
 @Composable
-fun Navigation(viewModel: AuthViewModel, databaseReference: DatabaseReference, userStateViewModel:UserStateViewModel, dataViewModel: DataViewModel) {
+fun Navigation(viewModel: AuthViewModel, databaseReference: DatabaseReference,dataViewModel: DataViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Screen.Login.route){
         composable(route = Screen.MainScreen.route){
-            PreviewCards(viewModel,dataViewModel,userStateViewModel,databaseReference,navController)
+            PreviewCards(viewModel,dataViewModel,databaseReference,navController)
         }
         composable(
             route = Screen.CameraScreen.route + "/{exName}/{accurancy}",
@@ -42,7 +41,7 @@ fun Navigation(viewModel: AuthViewModel, databaseReference: DatabaseReference, u
             addElement(navController)
         }
         composable(route = Screen.DeleteElement.route){
-            deleteElement(navController)
+            deleteElement(navController,databaseReference,dataViewModel)
         }
         composable(route = Screen.Login.route){
             LoginScreen(viewModel, navController)

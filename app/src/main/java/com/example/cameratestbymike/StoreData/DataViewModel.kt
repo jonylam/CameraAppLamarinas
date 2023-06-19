@@ -13,7 +13,7 @@ class DataViewModel : ViewModel() {
     val totallist = mutableListOf<ForReclaimData>()
     val getData = mutableStateOf(false)
 
-    fun getdatafromdatabase(databaseReference: DatabaseReference) {
+    fun getDataFromDatabase(databaseReference: DatabaseReference) {
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -47,6 +47,10 @@ class DataViewModel : ViewModel() {
                 println("Failed to retrieve data from matrix: ${error.message}")
             }
         })
+    }
+
+    fun deleteExercise(databaseReference: DatabaseReference, name: String) {
+        databaseReference.child(name).removeValue()
     }
 
     fun getList(): List<ForReclaimData> {

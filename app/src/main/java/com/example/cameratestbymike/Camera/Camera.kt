@@ -59,7 +59,7 @@ fun camera(
                 CameraView(viewModel,cameraViewModel,databaseReference,newItemName,Accurancy,navController)
             }
             permissionState.shouldShowRationale -> {
-                Text(text = "Camera permission is needed" +
+                Text(text = "Camera permission is needed " +
                         "to access the camera")
             }
             permissionState.isPermanentlyDenied() -> {
